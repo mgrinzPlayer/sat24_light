@@ -1,0 +1,136 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Zachmurzenie - wersja light</title>
+  </head>
+  <body>
+    Zachmurzenie - wersja light
+
+    <div style="width:100%;color:#666;">
+      <div style="margin:10px 20px 0px 20px;">
+
+        <div style="float:left">
+          <div style="display:inline-block;vertical-align:middle">
+            <div id='selectRegion' style="position:relative;
+                        display:inline-block;
+                        float:none;
+                        vertical-align:middle;
+                        height:38px;
+                        padding:0px;
+                        border:none;
+                        background-color:transparent">
+            </div>
+          </div>
+        </div>
+        <div style="float:right;">
+          <div style="display:inline-block;vertical-align:middle">
+            <div id='selectInterval' style="position:relative;
+                        display:inline-block;
+                        float:none;
+                        vertical-align:middle;
+                        height:38px;
+                        padding:0px;
+                        border:none;
+                        background-color:transparent">
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <br>
+    <br>
+    <br>
+    <div id="obrazki"></div>
+
+    <script>
+      var regionyArrayStr = ['Cała Polska','Polska Półn.-Zach.','Polska Półn.-Wsch.', 'Polska Połudn.-Zach.','Polska Połudn.-Wsch.','Centrum Polski'];
+      var regionyZoomArrayStr = ['','x=1950&y=880','x=2280&y=880','x=1950&y=1140','x=2280&y=1140','x=2115&y=1010'];
+
+      function pobierzargumentyzURL() {
+        var argumenty = {};
+        var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,klucz,wartosc) {
+            argumenty[klucz] = wartosc;
+        });
+        return argumenty;
+      }
+
+      var argumenty = pobierzargumentyzURL();
+      var iloscObrazkow = argumenty["num"] || 5;
+      var przedzial     = argumenty["przedzial"] || 3;
+      var region        = argumenty["region"] || 0;
+
+      if ( iloscObrazkow < 1) iloscObrazkow = 5;
+      if ( przedzial < 1)     przedzial = 3;
+      if ( region < 0)        region = 0;
+
+      var s = "";
+
+      // onchange="window.location='./?region=' + this.value + '&amp;przedzial=0'"
+      var selectRegion = document.createElement('span');
+      selectRegion.style="line-height:38px;";
+      s  = "Region:<select style='vertical-align:middle;height:38px;border-radius:6px;'";
+      s += " onchange=\"window.location='./?region=' + this.value + '&amp;przedzial=" + przedzial + "'\">";
+      for (var i=0;i<regionyArrayStr.length;i++) {
+        if (i==region) {
+          s += "<option selected='selected' value='"+i+"'>" + regionyArrayStr[i] + "</option>";
+        }
+        else {
+          s += "<option value='"+i+"'>" + regionyArrayStr[i] + "</option>";
+        }
+      }
+      selectRegion.innerHTML = s;
+      document.getElementById("selectRegion").appendChild(selectRegion);
+
+      // onchange="window.location='./?region=0&amp;przedzial=' + this.value"
+      var selectInterval = document.createElement('span');
+      selectInterval.style="line-height:38px;";
+      s  = "Odstęp w minutach:<select style='vertical-align:middle;height:38px;border-radius:6px;'";
+      s += " onchange=\"window.location='./?region=" + region + "&amp;przedzial=' + this.value\">";
+      for (var i=1;i<=6;i++) {
+        if (i==przedzial) {
+          s += "<option selected='selected' value='"+i+"'>" + i*5 + "</option>";
+        }
+        else {
+          s += "<option value='"+i+"'>" + i*5 + "</option>";
+        }
+      }
+      selectInterval.innerHTML = s;
+      document.getElementById("selectInterval").appendChild(selectInterval);
+
+
+      var xmlHttp = new XMLHttpRequest();
+      xmlHttp.open('HEAD',window.location.href.toString(),false);
+      xmlHttp.setRequestHeader("Content-Type", "text/html");
+      xmlHttp.send( null );
+      var currentDate =xmlHttp.getResponseHeader("Date");
+      currentDate = new Date(currentDate);
+
+      var currentTime = currentDate.getTime() / 1000;
+      currentTime = currentTime - ( currentTime % 300 ) - 300;
+      currentTime = currentTime * 1000;
+
+      var prefix="";
+      if (region==0) prefix="https://pl.sat24.com/image?type=visual&region=pl&timestamp="
+      else           prefix="https://pl.sat24.com/image/zoom?type=visual&region=eu&" + regionyZoomArrayStr[region] + "&timestamp=";
+
+      var text = "<p>Zachmurzenie co: " + przedzial*5 + " min. </p>";
+      var date, datestring;
+
+      for (var i=0;i<iloscObrazkow;i++) {
+        date = new Date(currentTime-i*przedzial*5*60*1000);
+        text += "<p>Stan z " + date.toTimeString() + ":<br>\r\n";
+        datestring = date.toISOString().replace(/[t:.-]/gi,"").substring(0,12);
+        text += "<img src='" + prefix + datestring + "' alt='" + datestring + "'/>";
+        text += "</p>\r\n";
+      }
+
+
+      document.getElementById("obrazki").innerHTML = text;
+
+    </script>
+
+
+
+  </body>
+</html>
