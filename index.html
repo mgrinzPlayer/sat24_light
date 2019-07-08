@@ -124,12 +124,15 @@
 
       var prefix="";
       var overlay="";
+      var defSize="";
       if (region==0) {
         prefix="https://pl.sat24.com/image?type=visual&region=pl&timestamp=";
         overlay="zoom1.png";
+        defSize="<div style='width:845px; height: 615px'>";
       } else {
         prefix="https://pl.sat24.com/image/zoom?type=visual&region=eu&" + regionyZoomArrayStr[region] + "&timestamp=";
         overlay="zoom2.png";
+        defSize="<div style='width:800px; height: 582px'>";
       }
 
       var text = "<p>Zachmurzenie co: " + przedzial*5 + " min. </p>";
@@ -139,9 +142,9 @@
         date = new Date(currentTime-i*przedzial*5*60*1000);
         datestring = date.toISOString().replace(/[t:.-]/gi,"").substring(0,12);
         text += "<p>Stan z " + date.toTimeString() + ":<br>\r\n";
-        text +=   "<div>";
+        text +=   defSize;//"<div>";
         text +=     "<div style='position: absolute;'><img src='" + overlay + "'/></div>";
-        text +=     "<div><img src='" + prefix + datestring + "' alt='" + datestring + "'/></div>";
+        text +=     "<div><img src='" + prefix + datestring + "'/></div>";
         text +=   "</div>";
         text += "</p>\r\n";
       }
