@@ -44,8 +44,20 @@
     <div id="obrazki"></div>
 
     <script>
-      var regionyArrayStr = ['Cała Polska','Polska Półn.-Zach.','Polska Półn.-Wsch.', 'Polska Połudn.-Zach.','Polska Połudn.-Wsch.','Centrum Polski'];
-      var regionyZoomArrayStr = ['','x=1950&y=880','x=2280&y=880','x=1950&y=1140','x=2280&y=1140','x=2115&y=1010'];
+      var regionyArrayStr = ['Cała Polska','Polska Półn.-Zach.','Polska Półn.-Wsch.', 'Polska Połudn.-Zach.','Polska Połudn.-Wsch.','Centrum Polski',
+        'Chałupy',
+        'Dębki',
+        'J. Turawskie',
+        'Kęty',
+        'Rowy',
+        ];
+      var regionyZoomArrayStr = ['','x=1950&y=880','x=2280&y=880','x=1950&y=1140','x=2280&y=1140','x=2115&y=1010',
+        'x=2053&y=812',
+        'x=2036&y=815',
+        'x=2080&y=1128',
+        'x=2143&y=1182',
+        'x=1994&y=828',
+        ];
 
       function pobierzargumentyzURL() {
         var argumenty = {};
@@ -79,7 +91,7 @@
           s += "<option value='"+i+"'>" + regionyArrayStr[i] + "</option>";
         }
       }
-      selectRegion.innerHTML = s;
+      selectRegion.innerHTML = s + "</select>";
       document.getElementById("selectRegion").appendChild(selectRegion);
 
       // onchange="window.location='./?region=0&amp;przedzial=' + this.value"
@@ -95,7 +107,7 @@
           s += "<option value='"+i+"'>" + i*5 + "</option>";
         }
       }
-      selectInterval.innerHTML = s;
+      selectInterval.innerHTML = s + "</select>";
       document.getElementById("selectInterval").appendChild(selectInterval);
 
 
@@ -106,22 +118,31 @@
       var currentDate =xmlHttp.getResponseHeader("Date");
       currentDate = new Date(currentDate);
 
-      var currentTime = currentDate.getTime() / 1000;
-      currentTime = currentTime - ( currentTime % 300 ) - 300;
-      currentTime = currentTime * 1000;
+      var currentTime = currentDate.getTime();
+      currentTime = currentTime - ( currentTime % 300000 ) - 300000;
+      currentTime = currentTime;
 
       var prefix="";
-      if (region==0) prefix="https://pl.sat24.com/image?type=visual&region=pl&timestamp="
-      else           prefix="https://pl.sat24.com/image/zoom?type=visual&region=eu&" + regionyZoomArrayStr[region] + "&timestamp=";
+      var overlay="";
+      if (region==0) {
+        prefix="https://pl.sat24.com/image?type=visual&region=pl&timestamp=";
+        overlay="zoom1.png";
+      } else {
+        prefix="https://pl.sat24.com/image/zoom?type=visual&region=eu&" + regionyZoomArrayStr[region] + "&timestamp=";
+        overlay="zoom2.png";
+      }
 
       var text = "<p>Zachmurzenie co: " + przedzial*5 + " min. </p>";
       var date, datestring;
 
       for (var i=0;i<iloscObrazkow;i++) {
         date = new Date(currentTime-i*przedzial*5*60*1000);
-        text += "<p>Stan z " + date.toTimeString() + ":<br>\r\n";
         datestring = date.toISOString().replace(/[t:.-]/gi,"").substring(0,12);
-        text += "<img src='" + prefix + datestring + "' alt='" + datestring + "'/>";
+        text += "<p>Stan z " + date.toTimeString() + ":<br>\r\n";
+        text +=   "<div>";
+        text +=     "<div style='position: absolute;'><img src='" + overlay + "'/></div>";
+        text +=     "<div><img src='" + prefix + datestring + "' alt='" + datestring + "'/></div>";
+        text +=   "</div>";
         text += "</p>\r\n";
       }
 
