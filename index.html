@@ -119,7 +119,7 @@
       currentDate = new Date(currentDate);
 
       var currentTime = currentDate.getTime();
-      currentTime = currentTime - ( currentTime % 300000 ) - 300000;
+      currentTime = currentTime - ( currentTime % (5 *60*1000) ) - (10 *60*1000); // zmień czas aby minuty były wielokrotnością 5 i cofnij o 10 minut (nowy obraz z satelity pojawia się po 2 do 7 minut)
       currentTime = currentTime;
 
       var prefix="";
@@ -128,11 +128,11 @@
       if (region==0) {
         prefix="https://pl.sat24.com/image?type=visual&region=pl&timestamp=";
         overlay="zoom1.png";
-        defSize="<div style='width:845px; height: 615px'>";
+        defSize="style='width:845px; height: 615px'";
       } else {
         prefix="https://pl.sat24.com/image/zoom?type=visual&region=eu&" + regionyZoomArrayStr[region] + "&timestamp=";
         overlay="zoom2.png";
-        defSize="<div style='width:800px; height: 582px'>";
+        defSize="style='width:800px; height: 582px'";
       }
 
       var text = "<p>Zachmurzenie co: " + przedzial*5 + " min. </p>";
@@ -142,9 +142,9 @@
         date = new Date(currentTime-i*przedzial*5*60*1000);
         datestring = date.toISOString().replace(/[t:.-]/gi,"").substring(0,12);
         text += "<p>Stan z " + date.toTimeString() + ":<br>\r\n";
-        text +=   defSize;//"<div>";
+        text +=   "<div>";
         text +=     "<div style='position: absolute;'><img src='" + overlay + "'/></div>";
-        text +=     "<div><img src='" + prefix + datestring + "'/></div>";
+        text +=     "<div><img " + defSize + " src='" + prefix + datestring + "'/></div>";
         text +=   "</div>";
         text += "</p>\r\n";
       }
