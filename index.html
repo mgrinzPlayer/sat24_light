@@ -4,8 +4,7 @@
     <title>Zachmurzenie - wersja light</title>
   </head>
   <body>
-    Zachmurzenie - wersja light
-
+    Ustawienia:
     <div style="width:100%;color:#666;">
       <div style="margin:10px 20px 0px 20px;">
 
@@ -22,7 +21,7 @@
             </div>
           </div>
         </div>
-        <div style="float:right;">
+        <div style="float:left;">
           <div style="display:inline-block;vertical-align:middle">
             <div id='selectInterval' style="position:relative;
                         display:inline-block;
@@ -49,14 +48,24 @@
         'Dębki',
         'J. Turawskie',
         'Kęty',
+        'Kryspinów',
+        'Międzyzdroje/Lubiewo',
+        'Pogoria IV',
+        'Pszczyna',
         'Rowy',
+        'Wał Miedzeszyński/Zawadowski',
         ];
       var regionyZoomArrayStr = ['','x=1950&y=880','x=2280&y=880','x=1950&y=1140','x=2280&y=1140','x=2115&y=1010',
         'x=2053&y=812',
         'x=2036&y=815',
         'x=2080&y=1128',
         'x=2143&y=1182',
+        'x=2170&y=1161',
+        'x=1885&y=901',
+        'x=2137&y=1143',
+        'x=2127&y=1176',
         'x=1994&y=828',
+        'x=2203&y=989',
         ];
 
       function pobierzargumentyzURL() {
@@ -115,12 +124,11 @@
       xmlHttp.open('HEAD',window.location.href.toString(),false);
       xmlHttp.setRequestHeader("Content-Type", "text/html");
       xmlHttp.send( null );
-      var currentDate =xmlHttp.getResponseHeader("Date");
+      var currentDate = xmlHttp.getResponseHeader("Date");
       currentDate = new Date(currentDate);
 
       var currentTime = currentDate.getTime();
       currentTime = currentTime - ( currentTime % (5 *60*1000) ) - (10 *60*1000); // zmień czas aby minuty były wielokrotnością 5 i cofnij o 10 minut (nowy obraz z satelity pojawia się po 2 do 7 minut)
-      currentTime = currentTime;
 
       var prefix="";
       var overlay="";
@@ -135,13 +143,13 @@
         defSize="style='width:800px; height: 582px'";
       }
 
-      var text = "<p>Zachmurzenie co: " + przedzial*5 + " min. </p>";
+      var text = "<p>Zachmurzenie co: " + przedzial*5 + " min.</p><p>Aktualna czas/data: " + currentDate.toLocaleTimeString("pl-PL") + " - " + currentDate.toLocaleDateString("pl-PL") + "</p>";
       var date, datestring;
 
       for (var i=0;i<iloscObrazkow;i++) {
         date = new Date(currentTime-i*przedzial*5*60*1000);
         datestring = date.toISOString().replace(/[t:.-]/gi,"").substring(0,12);
-        text += "<p>Stan z " + date.toTimeString() + ":<br>\r\n";
+        text += "<p>Stan z " + date.toLocaleTimeString("pl-PL") + "<br>\r\n";
         text +=   "<div>";
         text +=     "<div style='position: absolute;'><img src='" + overlay + "'/></div>";
         text +=     "<div><img " + defSize + " src='" + prefix + datestring + "'/></div>";
