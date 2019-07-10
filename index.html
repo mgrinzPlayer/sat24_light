@@ -131,16 +131,10 @@
       currentTime = currentTime - ( currentTime % (5 *60*1000) ) - (10 *60*1000); // zmień czas aby minuty były wielokrotnością 5 i cofnij o 10 minut (nowy obraz z satelity pojawia się po 2 do 7 minut)
 
       var prefix="";
-      var overlay="";
-      var defSize="";
       if (region==0) {
         prefix="https://pl.sat24.com/image?type=visual&region=pl&timestamp=";
-        overlay="zoom1.png";
-        defSize="style='width:845px; height: 615px'";
       } else {
         prefix="https://pl.sat24.com/image/zoom?type=visual&region=eu&" + regionyZoomArrayStr[region] + "&timestamp=";
-        overlay="zoom2.png";
-        defSize="style='width:800px; height: 582px'";
       }
 
       var text = "<p>Zachmurzenie co: " + przedzial*5 + " min.</p><p>Czas/data pobrania danych: " + currentDate.toLocaleTimeString("pl-PL") + " - " + currentDate.toLocaleDateString("pl-PL") + "</p>";
@@ -151,8 +145,14 @@
         datestring = date.toISOString().replace(/[t:.-]/gi,"").substring(0,12);
         text += "<p>Stan z " + date.toLocaleTimeString("pl-PL") + "<br>\r\n";
         text +=   "<div>";
-        text +=     "<div style='position: absolute;'><img src='" + overlay + "'/></div>";
-        text +=     "<div><img " + defSize + " src='" + prefix + datestring + "'/></div>";
+
+        if (region==0) {
+          text +=     "<div style='position: absolute;'><img src='https://pl.sat24.com/image/lightning?type=visual&region=pl&timestamp=" + datestring + "'/></div>"; // pokaż wyładowania
+        } else {
+          text +=     "<div style='position: absolute;'><img src='zoom2.png'/></div>"; // pokaż znacznik
+        }
+
+        text +=     "<div><img style='width:800px; height: 582px' src='" + prefix + datestring + "'/></div>";
         text +=   "</div>";
         text += "</p>\r\n";
       }
