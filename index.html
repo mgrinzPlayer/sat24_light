@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -8,26 +9,36 @@
     <div style="width:100%;color:#666;">
       <div style="margin:10px 20px 0px 20px;">
 
-        <div style="float:left">
+        <div>
           <div style="display:inline-block;vertical-align:middle">
             <div id='selectRegion' style="position:relative;
                         display:inline-block;
                         float:none;
                         vertical-align:middle;
-                        height:38px;
                         padding:0px;
                         border:none;
                         background-color:transparent">
             </div>
           </div>
         </div>
-        <div style="float:left;">
+        <div>
           <div style="display:inline-block;vertical-align:middle">
             <div id='selectInterval' style="position:relative;
                         display:inline-block;
                         float:none;
                         vertical-align:middle;
-                        height:38px;
+                        padding:0px;
+                        border:none;
+                        background-color:transparent">
+            </div>
+          </div>
+        </div>
+        <div>
+          <div style="display:inline-block;vertical-align:middle">
+            <div id='selectAnim' style="position:relative;
+                        display:inline-block;
+                        float:none;
+                        vertical-align:middle;
                         padding:0px;
                         border:none;
                         background-color:transparent">
@@ -40,6 +51,7 @@
     <br>
     <br>
     <br>
+    <div id="postep"></div>
     <div id="obrazki"></div>
 
     <script>
@@ -76,22 +88,79 @@
         return argumenty;
       }
 
+      var currentImage;
+      var previousImage;
+      var lastImage;
+      var onloadonerrorCounter = 0;
+      var loadedImagesArray = [];
+
+      function showAnimation() {
+        previousImage.style.display = "none";
+        currentImage.style.display = "block";
+
+        previousImage = currentImage;
+        currentImage = currentImage.previousSibling;
+
+        if (currentImage==null) {
+          currentImage = lastImage;
+          setTimeout(showAnimation, 1000);
+        }
+        else {
+          setTimeout(showAnimation, 150);
+        }
+      }
+
+      function onloadonerrorCount(id,success) {
+        onloadonerrorCounter++;
+
+        var postep = document.getElementById("postep");
+        postep.innerHTML = "Ładowanie, proszę czekać. " + Math.trunc(onloadonerrorCounter * 100 / iloscObrazkow) + " %";
+
+        if (success) loadedImagesArray.push(id);
+
+        if (onloadonerrorCounter>=iloscObrazkow) {
+          postep.style.display = "none";
+          loadedImagesArray.sort(function (a,b){return a-b;});
+          for (var i=0;i<iloscObrazkow;i++) {
+            var imageContainer = document.getElementById("obrazek"+i);
+            var image          = imageContainer.firstChild.firstChild;
+            if ( (loadedImagesArray.indexOf(i)==-1) || (image.width==1) ) {
+              imageContainer.remove();
+            }
+            else
+              imageContainer.style.display = "block";
+          }
+          currentImage = document.getElementById("obrazki").lastChild.lastChild;
+          previousImage = currentImage;
+          lastImage = currentImage;
+          showAnimation();
+        }
+      }
+
       var argumenty = pobierzargumentyzURL();
       var iloscObrazkow = argumenty["num"] || 5;
       var przedzial     = argumenty["przedzial"] || 3;
       var region        = argumenty["region"] || 0;
+      var anim          = argumenty["anim"] || 0;
 
       if ( iloscObrazkow < 1) iloscObrazkow = 5;
       if ( przedzial < 1)     przedzial = 3;
       if ( region < 0)        region = 0;
+      if ( anim   < 0)        anim   = 0;
+
+      // onchange="window.location='./?region=0&przedzial=0&anim=0'"
+
 
       var s = "";
-
-      // onchange="window.location='./?region=' + this.value + '&amp;przedzial=0'"
+      // onchange="window.location='./?region=' + this.value + '&przedzial=0&anim=0'"
       var selectRegion = document.createElement('span');
-      selectRegion.style="line-height:38px;";
-      s  = "Region:<select style='vertical-align:middle;height:38px;border-radius:6px;'";
-      s += " onchange=\"window.location='./?region=' + this.value + '&amp;przedzial=" + przedzial + "'\">";
+      s  = "Region:<select style='vertical-align:middle;border-radius:6px;'";
+      s += " onchange=\"window.location='./";
+      s += "?region=' + this.value + '";
+      s += "&przedzial=" + przedzial;
+      s += "&anim=" + anim;
+      s += "&num=" + iloscObrazkow;
+      s += "'\">";
       for (var i=0;i<regionyArrayStr.length;i++) {
         if (i==region) {
           s += "<option selected='selected' value='"+i+"'>" + regionyArrayStr[i] + "</option>";
@@ -103,11 +172,15 @@
       selectRegion.innerHTML = s + "</select>";
       document.getElementById("selectRegion").appendChild(selectRegion);
 
-      // onchange="window.location='./?region=0&amp;przedzial=' + this.value"
+      // onchange="window.location='./?region=0&przedzial=' + this.value + '&anim=0'"
       var selectInterval = document.createElement('span');
-      selectInterval.style="line-height:38px;";
-      s  = "Odstęp w minutach:<select style='vertical-align:middle;height:38px;border-radius:6px;'";
-      s += " onchange=\"window.location='./?region=" + region + "&amp;przedzial=' + this.value\">";
+      s  = "Odstęp w minutach:<select style='vertical-align:middle;border-radius:6px;'";
+      s += " onchange=\"window.location='./";
+      s += "?region=" + region;
+      s += "&przedzial=' + this.value + '";
+      s += "&anim=" + anim;
+      s += "&num=" + iloscObrazkow;
+      s += "'\">";
       for (var i=1;i<=6;i++) {
         if (i==przedzial) {
           s += "<option selected='selected' value='"+i+"'>" + i*5 + "</option>";
@@ -118,6 +191,20 @@
       }
       selectInterval.innerHTML = s + "</select>";
       document.getElementById("selectInterval").appendChild(selectInterval);
+
+      // onchange="window.location='./?region=0&przedzial=0&anim=' + this.value + ''"
+      var selectAnim = document.createElement('span');
+      s  = "Animacja:<select style='vertical-align:middle;border-radius:6px;'";
+      s += " onchange=\"window.location='./";
+      s += "?region=" + region;
+      s += "&przedzial=" + przedzial;
+      s += "&anim=' + this.value + '";
+      s += "&num=" + iloscObrazkow;
+      s += "'\">";
+      s += "<option " + (anim==0 ? "selected='selected' " : "") + "value='0'>OFF</option>";
+      s += "<option " + (anim> 0 ? "selected='selected' " : "") + "value='1'>ON</option>";
+      selectAnim.innerHTML = s + "</select>";
+      document.getElementById("selectAnim").appendChild(selectAnim);
 
 
       var xmlHttp = new XMLHttpRequest();
@@ -138,27 +225,47 @@
       }
 
       var text = "<p>Zachmurzenie co: " + przedzial*5 + " min.</p><p>Czas/data pobrania danych: " + currentDate.toLocaleTimeString("pl-PL") + " - " + currentDate.toLocaleDateString("pl-PL") + "</p>";
-      var date, datestring;
+      var date, datestring, idObrazka;
 
-      for (var i=0;i<iloscObrazkow;i++) {
-        date = new Date(currentTime-i*przedzial*5*60*1000);
-        datestring = date.toISOString().replace(/[t:.-]/gi,"").substring(0,12);
-        text += "<p>Stan z " + date.toLocaleTimeString("pl-PL") + "<br>\r\n";
-        text +=   "<div>";
-
-        if (region==0) {
+      if (anim==0){
+        for (var i=0;i<iloscObrazkow;i++) {
+          date = new Date(currentTime-i*przedzial*5*60*1000);
+          datestring = date.toISOString().replace(/[t:.-]/gi,"").substring(0,12);
+          text += "<p>Stan z " + date.toLocaleTimeString("pl-PL");
+          text +=   "<div>";
+          if (region==0) {
           text +=     "<div style='position: absolute;'><img src='https://pl.sat24.com/image/lightning?type=visual&region=pl&timestamp=" + datestring + "'/></div>"; // pokaż wyładowania
-        } else {
+          } else {
           text +=     "<div style='position: absolute;'><img src='zoom2.png'/></div>"; // pokaż znacznik
+          }
+          text +=     "<div><img style='width:800px; height: 582px' src='" + prefix + datestring + "'/></div>";
+          text +=   "</div>";
+          text += "</p>";
         }
-
-        text +=     "<div><img style='width:800px; height: 582px' src='" + prefix + datestring + "'/></div>";
-        text +=   "</div>";
-        text += "</p>\r\n";
+        document.getElementById("obrazki").innerHTML = text;
       }
+      else {
+        text += "<div>";
+        for (var i=0;i<iloscObrazkow;i++) {
+          date = new Date(currentTime-i*przedzial*5*60*1000);
+          datestring = date.toISOString().replace(/[t:.-]/gi,"").substring(0,12);
+          idObrazka = iloscObrazkow-1-i;
+          text += "<div id='obrazek" + idObrazka + "' style='display: none'>";
+          text +=   "<div style='position: absolute;'><img onload='onloadonerrorCount("+idObrazka+",true)' onerror='onloadonerrorCount("+idObrazka+",false)' style='width:800px; height: 582px' src='" + prefix + datestring + "'/></div>";
+          if (region==0) {
+          text +=   "<div style='position: absolute;'><img src='https://pl.sat24.com/image/lightning?type=visual&region=pl&timestamp=" + datestring + "'/></div>"; // pokaż wyładowania
+          } else {
+          text +=   "<div style='position: absolute;'><img src='zoom2.png'/></div>"; // pokaż znacznik
+          }
+          text +=   "<div style='position: absolute; font-size: 25px; padding: 8px 12px; color: #f8f8f8; text-shadow: 2px 2px 3px #0f0f0f;'>" + date.toLocaleTimeString("pl-PL") + " - " + date.toLocaleDateString("pl-PL") + "</div>";
+          text += "</div>";
+        }
+        text += "</div>";
+        document.getElementById("obrazki").innerHTML = text;
+        document.getElementById("postep").innerHTML = "Ładowanie, proszę czekać.";
+       }
 
 
-      document.getElementById("obrazki").innerHTML = text;
 
     </script>
 
