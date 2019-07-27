@@ -56,7 +56,7 @@
     <div id="obrazki"></div>
 
     <script>
-      var regionyArrayStr = ['Cała Polska','Polska Półn.-Zach.','Polska Półn.-Wsch.', 'Polska Połudn.-Zach.','Polska Połudn.-Wsch.','Centrum Polski',
+      var regionyArrayStr = ['Europa','Cała Polska','Polska Półn.-Zach.','Polska Półn.-Wsch.', 'Polska Połudn.-Zach.','Polska Połudn.-Wsch.','Centrum Polski',
         'Chałupy',
         'Dębki',
         'J. Turawskie',
@@ -68,7 +68,7 @@
         'Rowy',
         'Wał Miedzeszyński/Zawadowski',
         ];
-      var regionyZoomArrayStr = ['','x=1950&y=880','x=2280&y=880','x=1950&y=1140','x=2280&y=1140','x=2115&y=1010',
+      var regionyZoomArrayStr = ['','','x=1950&y=880','x=2280&y=880','x=1950&y=1140','x=2280&y=1140','x=2115&y=1010',
         'x=2053&y=812',
         'x=2036&y=815',
         'x=2080&y=1128',
@@ -89,6 +89,19 @@
         return argumenty;
       }
 
+      var argumenty = pobierzargumentyzURL();
+      var iloscObrazkow = argumenty["num"] || 5;
+      var przedzial     = argumenty["przedzial"] || 3;
+      var region        = argumenty["region"] || 1;
+      var anim          = argumenty["anim"] || 0;
+      var animDelay     = argumenty["delay"] || 150;
+
+      if ( iloscObrazkow < 1) iloscObrazkow = 5;
+      if ( przedzial < 1)     przedzial = 3;
+      if ( region < 0)        region = 1;
+      if ( anim < 0)          anim   = 0;
+      if ( animDelay < 0)     animDelay   = 150;
+
       var currentImage;
       var previousImage;
       var lastImage;
@@ -107,7 +120,7 @@
           setTimeout(showAnimation, 1000);
         }
         else {
-          setTimeout(showAnimation, 150);
+          setTimeout(showAnimation, animDelay);
         }
       }
 
@@ -138,19 +151,9 @@
         }
       }
 
-      var argumenty = pobierzargumentyzURL();
-      var iloscObrazkow = argumenty["num"] || 5;
-      var przedzial     = argumenty["przedzial"] || 3;
-      var region        = argumenty["region"] || 0;
-      var anim          = argumenty["anim"] || 0;
 
-      if ( iloscObrazkow < 1) iloscObrazkow = 5;
-      if ( przedzial < 1)     przedzial = 3;
-      if ( region < 0)        region = 0;
-      if ( anim   < 0)        anim   = 0;
 
       // onchange="window.location='./?region=0&przedzial=0&anim=0'"
-
 
       var s = "";
       // onchange="window.location='./?region=' + this.value + '&przedzial=0&anim=0'"
@@ -219,8 +222,13 @@
       currentTime = currentTime - ( currentTime % (5 *60*1000) ) - (10 *60*1000); // zmień czas aby minuty były wielokrotnością 5 i cofnij o 10 minut (nowy obraz z satelity pojawia się po 2 do 7 minut)
 
       var prefix="";
+      var lightningPrefix="";
       if (region==0) {
+        prefix="https://pl.sat24.com/image?type=visual&region=eu&timestamp=";
+        lightningPrefix="https://pl.sat24.com/image/lightning?type=visual&region=eu&timestamp=";
+      } else if (region==1) {
         prefix="https://pl.sat24.com/image?type=visual&region=pl&timestamp=";
+        lightningPrefix="https://pl.sat24.com/image/lightning?type=visual&region=pl&timestamp=";
       } else {
         prefix="https://pl.sat24.com/image/zoom?type=visual&region=eu&" + regionyZoomArrayStr[region] + "&timestamp=";
       }
@@ -234,8 +242,8 @@
           datestring = date.toISOString().replace(/[t:.-]/gi,"").substring(0,12);
           text += "<p>Stan z " + date.toLocaleTimeString("pl-PL");
           text +=   "<div>";
-          if (region==0) {
-          text +=     "<div style='position: absolute;'><img src='https://pl.sat24.com/image/lightning?type=visual&region=pl&timestamp=" + datestring + "'/></div>"; // pokaż wyładowania
+          if (region<2) {
+          text +=     "<div style='position: absolute;'><img src='" + lightningPrefix + datestring + "'/></div>"; // pokaż wyładowania
           } else {
           text +=     "<div style='position: absolute;'><img src='zoom2.png'/></div>"; // pokaż znacznik
           }
@@ -253,8 +261,8 @@
           idObrazka = iloscObrazkow-1-i;
           text += "<div id='obrazek" + idObrazka + "' style='display: none'>";
           text +=   "<div style='position: absolute;'><img onload='onloadonerrorCount("+idObrazka+",true)' onerror='onloadonerrorCount("+idObrazka+",false)' style='width:800px; height: 582px' src='" + prefix + datestring + "'/></div>";
-          if (region==0) {
-          text +=   "<div style='position: absolute;'><img src='https://pl.sat24.com/image/lightning?type=visual&region=pl&timestamp=" + datestring + "'/></div>"; // pokaż wyładowania
+          if (region<2) {
+          text +=   "<div style='position: absolute;'><img src='" + lightningPrefix + datestring + "'/></div>"; // pokaż wyładowania
           } else {
           text +=   "<div style='position: absolute;'><img src='zoom2.png'/></div>"; // pokaż znacznik
           }
