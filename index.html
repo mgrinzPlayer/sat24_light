@@ -206,7 +206,7 @@
       s += "&przedzial=" + przedzial;
       s += "&anim=' + this.value + '";
       s += "&num=" + iloscObrazkow;
-      if (this.value==1) {s += "&delay=" + animDelay;}
+      if (anim==0) {s += "&delay=" + animDelay;}
       s += "'\">";
       s += "<option " + (anim==0 ? "selected='selected' " : "") + "value='0'>OFF</option>";
       s += "<option " + (anim> 0 ? "selected='selected' " : "") + "value='1'>ON</option>";
