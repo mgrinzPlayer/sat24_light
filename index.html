@@ -164,6 +164,7 @@
       s += "&przedzial=" + przedzial;
       s += "&anim=" + anim;
       s += "&num=" + iloscObrazkow;
+      if (anim==1) {s += "&delay=" + animDelay;}
       s += "'\">";
       for (var i=0;i<regionyArrayStr.length;i++) {
         if (i==region) {
@@ -184,6 +185,7 @@
       s += "&przedzial=' + this.value + '";
       s += "&anim=" + anim;
       s += "&num=" + iloscObrazkow;
+      if (anim==1) {s += "&delay=" + animDelay;}
       s += "'\">";
       for (var i=1;i<=6;i++) {
         if (i==przedzial) {
@@ -204,6 +206,7 @@
       s += "&przedzial=" + przedzial;
       s += "&anim=' + this.value + '";
       s += "&num=" + iloscObrazkow;
+      if (anim==1) {s += "&delay=" + animDelay;}
       s += "'\">";
       s += "<option " + (anim==0 ? "selected='selected' " : "") + "value='0'>OFF</option>";
       s += "<option " + (anim> 0 ? "selected='selected' " : "") + "value='1'>ON</option>";
